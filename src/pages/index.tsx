@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { usersProgress } from "@/lib/data";
-import { Flex, Table, Progress, Modal} from "antd";
+import { Flex, Table, Progress, Modal, Collapse} from "antd";
 const { Column } = Table
 
-export default function Index() {
+export default function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [singleUsersProgress, setSingleUserProgress] = useState([]);
   return (
     <div className="min-h-screen p-12 bg-white flex flex-col">
       <Flex vertical>
@@ -33,15 +36,46 @@ export default function Index() {
               })
               const progressPercentage = answerProgress / count
               return (
-                <div onClick={()=>{console.log(modules)}}>
-                  <Progress size={80}  type="circle" percent={Math.floor(progressPercentage*100)} />  
+                <div className="w-fit rounded-full cursor-pointer p-1 hover:bg-violet-200" onClick={()=>{setIsModalOpen(true); setSingleUserProgress(modules)}}>
+                  <Progress size={50} strokeColor="#625CEB" trailColor="#C2C0DC" type="dashboard" percent={Math.floor(progressPercentage*100)} />  
                 </div>
-                
-
               )
             }}
           />
         </Table>
+
+        <Modal title="Basic Modal" open={isModalOpen} onOk={()=> setIsModalOpen(false)} onCancel={()=> setIsModalOpen(false)}>
+          {Object.keys(singleUsersProgress).map((modulesNames:string, index:number)=>{
+                return(
+                  <>
+                    <h1 key={index}>{modulesNames}</h1>
+                    {Object.keys(singleUsersProgress[modulesNames]).map((submoduleName) =>{
+                      return (
+                      <>
+                        <Collapse 
+                          items={submoduleName} 
+                          collapsible="header"
+                          defaultActiveKey={['1']}
+                          items={[
+                            {
+                              label: submoduleName,
+                              children:<>
+                                {Object.keys(singleUsersProgress[modulesNames][submoduleName]).map((questrion) =>{
+                                  return <div className='flex py-2'>
+                                  <h1>{questrion}</h1>
+                                  <h1>{singleUsersProgress[modulesNames][submoduleName][questrion]}</h1>
+                                  </div>
+                                })}
+                              </>
+                            }
+                          ]} />
+                      </>
+                    )
+                    })} 
+                  </>
+                )
+              })}
+        </Modal>
       </Flex>
      
 
